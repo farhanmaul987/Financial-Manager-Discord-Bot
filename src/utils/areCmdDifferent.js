@@ -1,13 +1,15 @@
 import path from "path";
-import getAllFiles from "./getAllFiles";
+import getAllFiles from "./getAllFiles.js";
 
-module.exports = (exceptions = []) => {
+const areCmdDifferent = async (exceptions = []) => {
   let localCommands = [];
-  const commandsDir = path.join(__dirname, "..", "commands");
+  const commandsDir = path.join(process.cwd(), "src", "commands");
   const commandFiles = getAllFiles(commandsDir);
 
   for (const commandFile of commandFiles) {
-    const commandObject = require(commandFile);
+    const commandModule = await import(commandFile);
+    const commandObject = commandModule.default || commandModule;
+    
     if (exceptions.includes(commandObject.name)) {
       continue;
     }
@@ -16,3 +18,5 @@ module.exports = (exceptions = []) => {
 
   return localCommands;
 };
+
+export default areCmdDifferent;

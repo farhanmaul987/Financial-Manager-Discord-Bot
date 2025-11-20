@@ -16,9 +16,7 @@ console.log(
 );
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    "ERROR: Supabase URL atau Anon Key tidak ditemukan di .env"
-  );
+  console.error("ERROR: Supabase URL atau Anon Key tidak ditemukan di .env");
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

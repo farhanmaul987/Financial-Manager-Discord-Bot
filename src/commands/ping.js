@@ -1,6 +1,6 @@
 import { MessageFlags } from "discord.js";
 
-module.exports = {
+export default {
   name: "ping",
   description: "Get the bot's latency",
 

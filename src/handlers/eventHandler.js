@@ -1,8 +1,15 @@
+import { fileURLToPath } from "url";
 import path from "path";
-import getAllFiles from "../utils/getAllFiles";
+import getAllFiles from "../utils/getAllFiles.js";
 
-module.exports = (client) => {
-  const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const eventHandler = (client) => {
+  const eventFolders = getAllFiles(
+    path.join(process.cwd(), "src", "events"),
+    true
+  );
 
   for (const eventFolder of eventFolders) {
     const eventFiles = getAllFiles(eventFolder);
@@ -13,9 +20,11 @@ module.exports = (client) => {
 
     client.on(eventName, async (arg) => {
       for (const eventFile of eventFiles) {
-        const eventFunction = require(eventFile);
+        const eventFunction = (await import(eventFile)).default;
         await eventFunction(client, arg);
       }
     });
   }
 };
+
+export default eventHandler;
