@@ -1,3 +1,5 @@
+import { MessageFlags } from "discord.js";
+
 module.exports = {
   name: "ping",
   description: "Get the bot's latency",
@@ -5,7 +7,7 @@ module.exports = {
   callback: (client, interaction) => {
     interaction.reply({
       content: `Ping! ${client.ws.ping}ms`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

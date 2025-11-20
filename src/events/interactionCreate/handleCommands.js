@@ -1,6 +1,6 @@
-var clc = require("cli-color");
-const { devs, mainServer } = require("../../../config.json");
-const getLocalCommands = require("../../utils/getLocalCommands");
+import clc from "cli-color";
+import { devs, mainServer } from "../../../config.json";
+import getLocalCommands from "../../utils/getLocalCommands";
 
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;

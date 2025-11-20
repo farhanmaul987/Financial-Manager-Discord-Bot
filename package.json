@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Personal Finance Manager",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "testdb": "node src/database/db.js"
   },
   "keywords": [],
   "author": "",

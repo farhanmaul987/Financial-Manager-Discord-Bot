@@ -1,4 +1,4 @@
-const cfonts = require("cfonts");
+import cfonts from "cfonts";
 
 module.exports = () => {
   cfonts.say("Petty Bot", {
