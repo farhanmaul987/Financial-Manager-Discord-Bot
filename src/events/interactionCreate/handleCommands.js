@@ -1,8 +1,8 @@
-import { readFileSync } from "fs";
-const config = JSON.parse(readFileSync("./config.json", "utf8"));
+import { readFileSync } from 'fs';
+const config = JSON.parse(readFileSync('./config.json', 'utf8'));
 const { mainServer, devs } = config;
+import { logger } from '../../utils/logger.js';
 
-import clc from "cli-color";
 import getLocalCommands from "../../utils/getLocalCommands.js";
 
 const handleCommands = async (client, interaction) => {
@@ -17,17 +17,7 @@ const handleCommands = async (client, interaction) => {
 
     if (!commandObject) return;
 
-    const status =
-      clc.greenBright("[ ") + clc.blueBright(" CHAT ") + clc.greenBright(" ] ");
-    console.log(
-      status +
-        "from " +
-        clc.magentaBright(interaction.user.tag) +
-        " in " +
-        clc.yellowBright(interaction.guild.name) +
-        " | " +
-        clc.greenBright(interaction.commandName)
-    );
+    logger.command(interaction);
 
     if (commandObject.devOnly) {
       if (!devs.includes(interaction.member.id)) {
@@ -77,7 +67,7 @@ const handleCommands = async (client, interaction) => {
 
     await commandObject.callback(client, interaction);
   } catch (error) {
-    console.log(`⚠️  There was an error running a command: ${error}.`);
+    logger.red("ERROR", `handleCommands: ${error}.`);
   }
 };
 

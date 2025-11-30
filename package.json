@@ -14,11 +14,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@supabase/supabase-js": "^2.81.1",
+    "@supabase/supabase-js": "^2.86.0",
     "cfonts": "^3.3.1",
     "cli-color": "^2.0.4",
     "common-tags": "^1.8.2",
-    "discord.js": "^14.24.0",
+    "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",
     "pg": "^8.16.3"
   },

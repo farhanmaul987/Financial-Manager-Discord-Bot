@@ -1,4 +1,4 @@
-import "dotenv/config";
+import 'dotenv/config';
 // Import Class Client dan IntentsBitField dari library
 import { Client, IntentsBitField } from "discord.js";
 import eventHandler from "./handlers/eventHandler.js";

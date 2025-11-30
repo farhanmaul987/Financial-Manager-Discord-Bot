@@ -1,4 +1,5 @@
 import path from "path";
+import { pathToFileURL } from "url";
 import { fileURLToPath } from "url";
 import getAllFiles from "./getAllFiles.js";
 
@@ -11,7 +12,7 @@ const getLocalCommands = async (exceptions = []) => {
   const commandFiles = getAllFiles(commandsDir);
 
   for (const commandFile of commandFiles) {
-    const commandModule = await import(commandFile);
+    const commandModule = await import(pathToFileURL(commandFile).href);
     const commandObject = commandModule.default || commandModule;
 
     if (exceptions.includes(commandObject.name)) {

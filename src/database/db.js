@@ -1,24 +1,20 @@
 // src/database/db.js
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
+import { logger } from "../utils/logger.js";
 
 // load environment
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
-console.log(
-  "URL Supabase yang digunakan:",
-  supabaseUrl ? supabaseUrl : "TIDAK DITEMUKAN"
-);
-console.log(
-  "Anon Key Supabase yang digunakan:",
-  supabaseAnonKey ? supabaseAnonKey : "TIDAK DITEMUKAN"
-);
+// supabaseUrl
+//   ? logger.green("SUCCESS", `URL Supabase: ${supabaseUrl}`)
+//   : logger.red("ERROR", "URL Supabase Not Found");
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("ERROR: Supabase URL atau Anon Key tidak ditemukan di .env");
-}
+// supabaseAnonKey
+//   ? logger.green("SUCCESS", `Anon Key: ${supabaseAnonKey}`)
+//   : logger.red("ERROR", "Anon Key Not Found");
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-console.log("Supabase client berhasil diinisialisasi.");
+logger.green("SUCCESS", "Supabase client initialized!");

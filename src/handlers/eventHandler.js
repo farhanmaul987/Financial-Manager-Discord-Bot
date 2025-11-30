@@ -1,4 +1,5 @@
 import { fileURLToPath } from "url";
+import { pathToFileURL } from "url";
 import path from "path";
 import getAllFiles from "../utils/getAllFiles.js";
 
@@ -20,7 +21,8 @@ const eventHandler = (client) => {
 
     client.on(eventName, async (arg) => {
       for (const eventFile of eventFiles) {
-        const eventFunction = (await import(eventFile)).default;
+        const eventFunction = (await import(pathToFileURL(eventFile).href))
+          .default;
         await eventFunction(client, arg);
       }
     });

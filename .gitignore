@@ -142,3 +142,4 @@ vite.config.ts.timestamp-*
 
 config.json
 package-lock.json
+db_backup.sql
