@@ -10,7 +10,6 @@ import { createErrorEmbed } from "../utils/embedLayout.js";
 import { cache } from "../utils/cache.js";
 
 function formatCurrency(number) {
-  // Membulatkan ke 2 desimal terdekat sebelum memformat
   const roundedNumber = Math.round(number * 100) / 100;
 
   return new Intl.NumberFormat("id-ID", {
@@ -21,11 +20,9 @@ function formatCurrency(number) {
   }).format(roundedNumber);
 }
 
-// Generic fetcher with caching
-async function getCachedRPC(key, rpcName, ttl = 5000) {
+async function getCachedRPC(key, rpcName, userId, ttl = 5000) {
   const now = Date.now();
 
-  // Force refresh jika data kosong atau cache expired
   const shouldRefresh =
     !cache[key].data ||
     cache[key].data.length === 0 ||
@@ -35,12 +32,11 @@ async function getCachedRPC(key, rpcName, ttl = 5000) {
     return cache[key].data;
   }
 
-  // Fetch fresh
-  const { data, error } = await supabase.rpc(rpcName);
+  const { data, error } = await supabase.rpc(rpcName, { p_id_user: userId });
 
   if (error) {
     console.error(`Error on RPC ${rpcName}:`, error);
-    return cache[key].data ?? []; // fallback
+    return cache[key].data ?? [];
   }
 
   cache[key].data = data || [];
@@ -49,8 +45,9 @@ async function getCachedRPC(key, rpcName, ttl = 5000) {
   return cache[key].data;
 }
 
-const getWallets = () => getCachedRPC("wallet", "get_all_wallet");
-const getCategories = () => getCachedRPC("category", "get_all_category");
+const getWallets = (userId) => getCachedRPC("wallet", "get_all_wallet", userId);
+const getCategories = (userId) =>
+  getCachedRPC("category", "get_all_category", userId);
 
 export default {
   name: "transaksi",
@@ -104,12 +101,12 @@ export default {
   autocomplete: async (_, interaction) => {
     const focused = interaction.options.getFocused(true);
     const query = focused.value?.toLowerCase() || "";
+    const userId = interaction.user.id;
 
     switch (focused.name) {
       case "wallet": {
-        const wallets = await getWallets();
+        const wallets = await getWallets(userId);
 
-        // FILTER wallet berdasarkan input user
         const filtered = wallets
           .filter(
             (w) =>
@@ -126,9 +123,8 @@ export default {
       }
 
       case "category": {
-        const categories = await getCategories();
+        const categories = await getCategories(userId);
 
-        // FILTER kategori berdasarkan input user
         const filtered = categories
           .filter(
             (c) =>
@@ -162,10 +158,10 @@ export default {
         const amount = interaction.options.getNumber("amount");
         const type = interaction.options.getString("type");
         const note = interaction.options.getString("note") || "-";
+        const userId = interaction.user.id;
 
-        // Ambil data wallet & category dari cache untuk keperluan display nama/icon
-        const wallets = await getWallets();
-        const categories = await getCategories();
+        const wallets = await getWallets(userId);
+        const categories = await getCategories(userId);
 
         const wallet = wallets.find((w) => w.id_wallet === walletId);
         const category = categories.find((c) => c.id_category === categoryId);
@@ -206,6 +202,7 @@ export default {
         }
 
         const { data, error } = await supabase.rpc("add_transaction", {
+          p_id_user: userId,
           p_id_wallet: walletId,
           p_id_category: categoryId,
           p_amount: amount,

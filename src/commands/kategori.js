@@ -28,7 +28,7 @@ export default {
           name: "icon",
           description: "Gunakan default icon.",
           type: ApplicationCommandOptionType.String,
-          required: false,
+          required: true,
         },
       ],
     },
@@ -41,11 +41,13 @@ export default {
       await interaction.deferReply();
 
       const name = interaction.options.getString("name");
+      const capitalized = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
       const icon = interaction.options.getString("icon") || "📁";
+      const userId = interaction.user.id;
 
-      // Load existing categories.json
       const { data, error } = await supabase.rpc("add_category", {
-        p_name: name,
+        p_id_user: userId,
+        p_name: capitalized,
         p_icon: icon,
       });
 

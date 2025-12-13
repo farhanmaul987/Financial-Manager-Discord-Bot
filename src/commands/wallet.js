@@ -9,6 +9,17 @@ import { logger } from "../utils/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
 import { cache } from "../utils/cache.js";
 
+function formatCurrency(number) {
+  const roundedNumber = Math.round(number * 100) / 100;
+
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(roundedNumber);
+}
+
 export default {
   name: "wallet",
   description: "Kelola wallet.",
@@ -22,6 +33,12 @@ export default {
           name: "name",
           description: "Nama wallet.",
           type: ApplicationCommandOptionType.String,
+          required: true,
+        },
+        {
+          name: "amount",
+          description: "Nominal awal wallet.",
+          type: ApplicationCommandOptionType.Number,
           required: true,
         },
         {
@@ -41,12 +58,14 @@ export default {
       await interaction.deferReply();
 
       const name = interaction.options.getString("name");
+      const amount = interaction.options.getNumber("amount");
       const isSpendable = interaction.options.getBoolean("is_spendable");
+      const userId = interaction.user.id;
 
-      // CALL RPC add_wallet (return TABLE → hasilnya array of rows)
       const { data, error } = await supabase.rpc("add_wallet", {
+        p_id_user: userId,
         p_name: name,
-        p_amount: 0,
+        p_amount: amount || 0,
         p_is_spendable: isSpendable,
       });
 
@@ -64,7 +83,6 @@ export default {
         });
       }
 
-      // data = [{ id_wallet, name, amount, is_spendable }]
       const row = data?.[0];
 
       if (!row) {
@@ -75,6 +93,8 @@ export default {
         return interaction.editReply({ embeds: [emptyEmbed] });
       }
 
+      const balance = Number(row.amount);
+
       const embed = new EmbedBuilder()
         .setColor(color.purple)
         .setTitle("Wallet Ditambahkan")
@@ -82,6 +102,7 @@ export default {
         .addFields(
           { name: "ID", value: row.id_wallet, inline: true },
           { name: "Name", value: row.name, inline: true },
+          { name: "Amount", value: formatCurrency(balance), inline: true },
           {
             name: "Spendable",
             value: row.is_spendable ? "Yes" : "No",
