@@ -1,13 +1,19 @@
-import { MessageFlags } from "discord.js";
+import { MessageFlags, EmbedBuilder } from "discord.js";
+import { color, image } from "../utils/property.js";
 
 export default {
   name: "ping",
   description: "Get the bot's latency",
 
   callback: (client, interaction) => {
-    interaction.reply({
-      content: `Ping! ${client.ws.ping}ms`,
-      flags: MessageFlags.Ephemeral,
-    });
+    const embed = new EmbedBuilder()
+      .setColor(color.red)
+      .setTitle("Pong!")
+      .setThumbnail(image.logo)
+      .addFields({ name: "Latency", value: `${client.ws.ping}ms` })
+      .setTimestamp()
+      .setFooter({ text: "PiggyBank", iconURL: image.logo });
+
+    interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   },
 };

@@ -1,11 +1,22 @@
-import { readFileSync } from 'fs';
-const config = JSON.parse(readFileSync('./config.json', 'utf8'));
+import { readFileSync } from "fs";
+const config = JSON.parse(readFileSync("./config.json", "utf8"));
 const { mainServer, devs } = config;
-import { logger } from '../../utils/logger.js';
+import { logger } from "../../utils/logger.js";
 
 import getLocalCommands from "../../utils/getLocalCommands.js";
 
 const handleCommands = async (client, interaction) => {
+  if (interaction.isAutocomplete()) {
+    const localCommands = await getLocalCommands();
+    const commandObject = localCommands.find(
+      (cmd) => cmd.name === interaction.commandName
+    );
+
+    if (commandObject?.autocomplete) {
+      return commandObject.autocomplete(client, interaction);
+    }
+  }
+
   if (!interaction.isChatInputCommand()) return;
 
   const localCommands = await getLocalCommands();

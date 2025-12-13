@@ -14,44 +14,57 @@ const getTimestamp = () => {
   return `${day}/${month}/${year} ${hour}:${min}`;
 };
 
+const green = (status, msg) => {
+  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
+  console.log(`${timestamp} ${clc.greenBright(`[${status}]`)} ${msg}`);
+};
+
+const red = (status, msg) => {
+  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
+  console.log(`${timestamp} ${clc.redBright(`[${status}]`)} ${msg}`);
+};
+
+const yellow = (status, msg) => {
+  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
+  console.log(`${timestamp} ${clc.yellowBright(`[${status}]`)} ${msg}`);
+};
+
+const blue = (status, msg) => {
+  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
+  console.log(`${timestamp} ${clc.blueBright(`[${status}]`)} ${msg}`);
+};
+
+const magenta = (status, msg) => {
+  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
+  console.log(`${timestamp} ${clc.magentaBright(`[${status}]`)} ${msg}`);
+};
+
 const command = (interaction) => {
   const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
+  const magenta = clc.magentaBright(`[COMMAND]`);
 
   const user = clc.magentaBright(interaction.user?.tag ?? "UnknownUser");
-  const cmd = clc.greenBright(interaction.commandName);
+
+  const baseCmd = interaction.commandName;
+  const subCmd = interaction.options.getSubcommand(false); // false biar nggak error kalau ga ada subcommand
+
+  const cmdFormatted = subCmd
+    ? `${clc.greenBright(baseCmd)}-${clc.greenBright(subCmd)}`
+    : clc.greenBright(baseCmd);
 
   const options = interaction.options?._hoistedOptions || [];
   const optText = options.length
     ? clc.yellowBright(`(${options.map((opt) => opt.value).join(", ")})`)
     : "";
 
-  console.log(`${timestamp} ${user}: ${cmd} ${optText}`);
-};
-
-const green = (status, msg) => {
-  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
-  console.log(`${timestamp} ${clc.cyanBright(`[ ${clc.greenBright(`${status}`)} ]`)} ${msg}`);
-};
-
-const red = (status, msg) => {
-  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
-  console.log(`${timestamp} ${clc.cyanBright(`[ ${clc.redBright(`${status}`)} ]`)} ${msg}`);
-};
-
-const yellow = (status, msg) => {
-  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
-  console.log(`${timestamp} ${clc.cyanBright(`[ ${clc.yellowBright(`${status}`)} ]`)} ${msg}`);
-};
-
-const blue = (status, msg) => {
-  const timestamp = clc.cyanBright(`[${getTimestamp()}]`);
-  console.log(`${timestamp} ${clc.cyanBright(`[ ${clc.blueBright(`${status}`)} ]`)} ${msg}`);
+  console.log(`${timestamp} ${magenta} ${user}: ${cmdFormatted} ${optText}`);
 };
 
 export const logger = {
-  command,
   green,
   red,
   yellow,
   blue,
+  magenta,
+  command,
 };
