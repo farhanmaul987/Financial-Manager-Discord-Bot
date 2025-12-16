@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 const config = JSON.parse(readFileSync("./config.json", "utf8"));
 const { mainServer, devs } = config;
-import { logger } from "../../utils/logger.js";
+import { logger } from "../../utils/components/logger.js";
 
 import getLocalCommands from "../../utils/getLocalCommands.js";
 

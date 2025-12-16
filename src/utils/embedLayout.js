@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "discord.js";
-import { color, image } from "./property.js";
+import { color, image } from "./components/property.js";
 import { stripIndents } from "common-tags";
 
 export const createErrorEmbed = (title, errorMessage) => {

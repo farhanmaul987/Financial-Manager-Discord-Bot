@@ -1,7 +1,7 @@
 // src/database/db.js
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
-import { logger } from "../utils/logger.js";
+import { logger } from "../utils/components/logger.js";
 
 // load environment
 const supabaseUrl = process.env.SUPABASE_URL;

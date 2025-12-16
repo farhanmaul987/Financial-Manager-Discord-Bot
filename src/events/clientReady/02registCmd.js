@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import areCommandsDifferent from "../../utils/areCmdDifferent.js";
 import getApplicationCommands from "../../utils/getAppCommands.js";
 import getLocalCommands from "../../utils/getLocalCommands.js";
-import { logger } from "../../utils/logger.js";
+import { logger } from "../../utils/components/logger.js";
 import clc from "cli-color";
 
 // Path for config.json

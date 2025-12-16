@@ -4,46 +4,12 @@ import {
   MessageFlags,
 } from "discord.js";
 import { supabase } from "../database/db.js";
-import { color, image } from "../utils/property.js";
-import { logger } from "../utils/logger.js";
+import { color, image } from "../utils/components/property.js";
+import { logger } from "../utils/components/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
-import { cache } from "../utils/cache.js";
-
-function formatCurrency(number) {
-  const roundedNumber = Math.round(number * 100) / 100;
-
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(roundedNumber);
-}
-
-async function getCachedRPC(key, rpcName, userId, ttl = 5000) {
-  const now = Date.now();
-
-  const shouldRefresh =
-    !cache[key].data ||
-    cache[key].data.length === 0 ||
-    now - cache[key].last >= ttl;
-
-  if (!shouldRefresh) {
-    return cache[key].data;
-  }
-
-  const { data, error } = await supabase.rpc(rpcName, { p_id_user: userId });
-
-  if (error) {
-    console.error(`Error on RPC ${rpcName}:`, error);
-    return cache[key].data ?? [];
-  }
-
-  cache[key].data = data || [];
-  cache[key].last = now;
-
-  return cache[key].data;
-}
+import { getCachedRPC } from "../utils/components/cache.js";
+import { formatCurrency } from "../utils/components/currency.js";
+import { stripIndents } from "common-tags";
 
 const getWallets = (userId) => getCachedRPC("wallet", "get_all_wallet", userId);
 const getCategories = (userId) =>
@@ -232,23 +198,24 @@ export default {
         const embed = new EmbedBuilder()
           .setColor(type === "income" ? color.blue : color.purple)
           .setTitle("Transaksi Ditambahkan")
+          .setDescription(stripIndents`\*\*💰 Amount:\*\* ${formattedAmount}`)
           .setThumbnail(image.logo)
           .addFields(
-            { name: "Wallet", value: wallet?.name ?? "-", inline: true },
+            { name: "👛 Wallet", value: wallet?.name ?? "-", inline: true },
             {
-              name: "Category",
+              name: "🏷️ Category",
               value: `${category?.icon ?? ""} ${category?.name ?? "-"}`,
               inline: true,
             },
-            { name: "Amount", value: formattedAmount, inline: true },
-            { name: "Type", value: type, inline: true },
+            { name: "🔁 Type", value: type, inline: false },
             {
-              name: "ID Invoice",
-              value: trx?.id_transaction ?? "-",
+              name: "🧾 ID Invoice",
+              value: stripIndents`\`${trx?.id_transaction}\`` ?? stripIndents`\`-\``,
               inline: true,
             },
-            { name: "Note", value: note, inline: false }
+            { name: "📝 Note", value: note || "-", inline: false }
           )
+
           .setTimestamp()
           .setFooter({ text: interaction.user.username, iconURL: avatarURL });
 

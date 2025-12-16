@@ -1,5 +1,5 @@
 import { EmbedBuilder, MessageFlags } from "discord.js";
-import { color, image } from "../utils/property.js";
+import { color, image } from "../utils/components/property.js";
 
 export default {
     name: "sample",

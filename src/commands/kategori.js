@@ -4,10 +4,11 @@ import {
   MessageFlags,
 } from "discord.js";
 import { supabase } from "../database/db.js";
-import { color, image } from "../utils/property.js";
-import { logger } from "../utils/logger.js";
+import { color, image } from "../utils/components/property.js";
+import { logger } from "../utils/components/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
-import { cache } from "../utils/cache.js";
+import { cache } from "../utils/components/cache.js";
+import { stripIndents } from "common-tags";
 
 export default {
   name: "kategori",
@@ -26,7 +27,7 @@ export default {
         },
         {
           name: "icon",
-          description: "Gunakan default icon.",
+          description: "Gunakan default emoji.",
           type: ApplicationCommandOptionType.String,
           required: true,
         },
@@ -79,9 +80,9 @@ export default {
         .setTitle("Kategori Ditambahkan")
         .setThumbnail(image.logo)
         .addFields(
-          { name: "ID", value: row.id_category, inline: true },
-          { name: "Nama", value: row.name, inline: true },
-          { name: "Icon", value: row.icon, inline: true }
+          { name: "🏷️ Nama", value: row.name, inline: true },
+          { name: "🖼️ Icon", value: row.icon, inline: true },
+          { name: "🆔 ID", value: `\`${row.id_category}\``, inline: false },
         )
         .setTimestamp()
         .setFooter({ text: "PiggyBank", iconURL: image.logo });

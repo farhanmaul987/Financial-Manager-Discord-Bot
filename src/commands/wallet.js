@@ -4,21 +4,12 @@ import {
   MessageFlags,
 } from "discord.js";
 import { supabase } from "../database/db.js";
-import { color, image } from "../utils/property.js";
-import { logger } from "../utils/logger.js";
+import { color, image } from "../utils/components/property.js";
+import { logger } from "../utils/components/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
-import { cache } from "../utils/cache.js";
-
-function formatCurrency(number) {
-  const roundedNumber = Math.round(number * 100) / 100;
-
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(roundedNumber);
-}
+import { cache } from "../utils/components/cache.js";
+import { formatCurrency } from "../utils/components/currency.js";
+import { stripIndents } from "common-tags";
 
 export default {
   name: "wallet",
@@ -98,16 +89,18 @@ export default {
       const embed = new EmbedBuilder()
         .setColor(color.purple)
         .setTitle("Wallet Ditambahkan")
+        .setDescription(
+          stripIndents`\*\*💰 Amount:\*\* ${formatCurrency(balance)}`
+        )
         .setThumbnail(image.logo)
         .addFields(
-          { name: "ID", value: row.id_wallet, inline: true },
-          { name: "Name", value: row.name, inline: true },
-          { name: "Amount", value: formatCurrency(balance), inline: true },
+          { name: "👤 Name", value: row.name, inline: true },
           {
-            name: "Spendable",
+            name: row.is_spendable ? "🔓 Spendable" : "🔒 Spendable",
             value: row.is_spendable ? "Yes" : "No",
             inline: true,
-          }
+          },
+          { name: "🆔 ID", value: stripIndents`\`${row.id_wallet}\``, inline: false },
         )
         .setTimestamp()
         .setFooter({ text: "PiggyBank", iconURL: image.logo });
