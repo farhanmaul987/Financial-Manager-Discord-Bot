@@ -1,5 +1,7 @@
 import { EmbedBuilder, MessageFlags } from "discord.js";
-import { color, image } from "../utils/components/property.js";
+// import { color, image, text } from "../utils/components/property.js";
+import config from "../../config.json" with { type: "json" };
+const { color, image, app } = config;
 
 export default {
     name: "sample",
@@ -11,7 +13,7 @@ export default {
           .setTitle("Embed Sample")
           .setURL("https://google.com")
           .setAuthor({
-            name: "PiggyBank",
+            name: app.botName,
             iconURL: image.logo,
             url: "https://www.farhanmaul.my.id/",
           })

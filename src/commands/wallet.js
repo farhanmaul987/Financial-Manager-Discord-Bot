@@ -4,11 +4,12 @@ import {
   MessageFlags,
 } from "discord.js";
 import { supabase } from "../database/db.js";
-import { color, image } from "../utils/components/property.js";
+import config from "../../config.json" with { type: "json" };
+const { color, image, app } = config;
 import { logger } from "../utils/components/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
 import { cache } from "../utils/components/cache.js";
-import { formatCurrency } from "../utils/components/currency.js";
+import { formatCurrency, parseAmount } from "../utils/components/formatter.js";
 import { stripIndents } from "common-tags";
 
 export default {
@@ -29,7 +30,7 @@ export default {
         {
           name: "amount",
           description: "Nominal awal wallet.",
-          type: ApplicationCommandOptionType.Number,
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
         {
@@ -49,9 +50,20 @@ export default {
       await interaction.deferReply();
 
       const name = interaction.options.getString("name");
-      const amount = interaction.options.getNumber("amount");
+      const amountRaw = interaction.options.getString("amount");
       const isSpendable = interaction.options.getBoolean("is_spendable");
       const userId = interaction.user.id;
+
+      const amountResult = parseAmount(amountRaw);
+
+      if (!amountResult.success) {
+        return interaction.editReply({
+          embeds: [amountResult.embed],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
+      const amount = amountResult.amount;
 
       const { data, error } = await supabase.rpc("add_wallet", {
         p_id_user: userId,
@@ -100,10 +112,14 @@ export default {
             value: row.is_spendable ? "Yes" : "No",
             inline: true,
           },
-          { name: "🆔 ID", value: stripIndents`\`${row.id_wallet}\``, inline: false },
+          {
+            name: "🆔 ID",
+            value: stripIndents`\`${row.id_wallet}\``,
+            inline: false,
+          }
         )
         .setTimestamp()
-        .setFooter({ text: "PiggyBank", iconURL: image.logo });
+        .setFooter({ text: app.botName, iconURL: image.logo });
 
       cache.wallet.data = null;
       cache.wallet.last = 0;

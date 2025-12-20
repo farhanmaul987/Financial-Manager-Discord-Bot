@@ -4,7 +4,8 @@ import {
   MessageFlags,
 } from "discord.js";
 import { supabase } from "../database/db.js";
-import { color, image } from "../utils/components/property.js";
+import config from "../../config.json" with { type: "json" };
+const { color, image, app } = config;
 import { logger } from "../utils/components/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
 import { cache } from "../utils/components/cache.js";
@@ -85,7 +86,7 @@ export default {
           { name: "🆔 ID", value: `\`${row.id_category}\``, inline: false },
         )
         .setTimestamp()
-        .setFooter({ text: "PiggyBank", iconURL: image.logo });
+        .setFooter({ text: app.botName, iconURL: image.logo });
 
       cache.category.data = null;
       cache.category.last = 0;

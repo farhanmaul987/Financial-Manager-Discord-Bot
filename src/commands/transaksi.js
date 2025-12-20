@@ -4,11 +4,12 @@ import {
   MessageFlags,
 } from "discord.js";
 import { supabase } from "../database/db.js";
-import { color, image } from "../utils/components/property.js";
+import config from "../../config.json" with { type: "json" };
+const { color, image, app } = config;
 import { logger } from "../utils/components/logger.js";
 import { createErrorEmbed } from "../utils/embedLayout.js";
 import { getCachedRPC } from "../utils/components/cache.js";
-import { formatCurrency } from "../utils/components/currency.js";
+import { formatCurrency, parseAmount } from "../utils/components/formatter.js";
 import { stripIndents } from "common-tags";
 
 const getWallets = (userId) => getCachedRPC("wallet", "get_all_wallet", userId);
@@ -41,7 +42,7 @@ export default {
         {
           name: "amount",
           description: "Nominal transaksi.",
-          type: ApplicationCommandOptionType.Number,
+          type: ApplicationCommandOptionType.String,
           required: true,
         },
         {
@@ -121,7 +122,7 @@ export default {
 
         const walletId = interaction.options.getString("wallet");
         const categoryId = interaction.options.getString("category");
-        const amount = interaction.options.getNumber("amount");
+        const amountRaw = interaction.options.getString("amount");
         const type = interaction.options.getString("type");
         const note = interaction.options.getString("note") || "-";
         const userId = interaction.user.id;
@@ -131,6 +132,17 @@ export default {
 
         const wallet = wallets.find((w) => w.id_wallet === walletId);
         const category = categories.find((c) => c.id_category === categoryId);
+
+        const amountResult = parseAmount(amountRaw);
+
+        if (!amountResult.success) {
+          return interaction.editReply({
+            embeds: [amountResult.embed],
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+
+        const amount = amountResult.amount;
 
         if (type === "expense" && !wallet.is_spendable) {
           logger.red("ERROR", "Wallet not spendable");
@@ -210,16 +222,46 @@ export default {
             { name: "🔁 Type", value: type, inline: false },
             {
               name: "🧾 ID Invoice",
-              value: stripIndents`\`${trx?.id_transaction}\`` ?? stripIndents`\`-\``,
+              value:
+                stripIndents`\`${trx?.id_transaction}\`` ?? stripIndents`\`-\``,
               inline: true,
             },
             { name: "📝 Note", value: note || "-", inline: false }
           )
-
           .setTimestamp()
           .setFooter({ text: interaction.user.username, iconURL: avatarURL });
 
-        return interaction.editReply({ embeds: [embed] });
+        interaction.editReply({ embeds: [embed] });
+
+        const embedChannel = new EmbedBuilder()
+          .setColor(type === "income" ? color.blue : color.purple)
+          .setTitle(`TRANSAKSI ${type.toUpperCase()}`)
+          .setDescription(
+            stripIndents`
+            💰 \*\*AMOUNT:\*\* ${formattedAmount}
+            \`\`\`
+            WALLET    : ${wallet?.name ?? "-"}
+            CATEGORY  : ${category?.name ?? "-"}
+            TYPE      : ${type}
+            \`\`\`
+          `
+          )
+          // .addFields(
+          //   { name: "👛 Wallet", value: wallet?.name ?? "-", inline: true },
+          //   {
+          //     name: "🏷️ Category",
+          //     value: `${category?.icon ?? ""} ${category?.name ?? "-"}`,
+          //     inline: true,
+          //   },
+          //   { name: "🔁 Type", value: type, inline: true }
+          // )
+          .setTimestamp()
+          .setFooter({ text: interaction.user.username, iconURL: avatarURL });
+
+        const channel = await client.channels.fetch("1450688970378969233");
+        if (channel) {
+          channel.send({ embeds: [embedChannel] });
+        }
       }
     }
   },
